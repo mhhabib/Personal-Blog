@@ -4,7 +4,6 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class Tag(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     name = models.CharField(max_length=255)
 
     def __str__(self):
@@ -35,3 +34,6 @@ class Post(models.Model):
         img = Image.open(self.thumbnail_image.path)
         img.thumbnail((424, 320))
         img.save(self.thumbnail_image.path)
+
+    class Meta:
+        ordering = ['-create_date']
