@@ -6,6 +6,8 @@ import AuthContext from "../context/AuthContext";
 const Login = () => {
 	const { username, loginUser } = useContext(AuthContext);
 	const usernameRef = useRef(username);
+	
+
 	const navigate = useNavigate();
 	useEffect(() => {
 		if (usernameRef.current) navigate("/");
@@ -27,10 +29,14 @@ const Login = () => {
 					className="mb-0 mt-6 space-y-4 rounded-lg p-4 shadow-lg sm:p-6 lg:p-8"
 					onSubmit={loginUser}
 				>
+					{/* {loginMessages &&
+						<p className="text-center text-lg font-medium">
+							{loginMessages}
+						</p>
+					} */}
 					<p className="text-center text-lg font-medium">
-						Sign in to your account
-					</p>
-
+							Sign in to your account
+						</p>
 					<div>
 						<label htmlFor="text" className="sr-only">
 							User name

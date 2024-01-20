@@ -1,54 +1,14 @@
 "use-client";
+import "react-quill/dist/quill.snow.css";
 import { Button, Label, TextInput } from "flowbite-react";
 import React, { useContext, useEffect, useState } from "react";
 import AuthContext from "../context/AuthContext";
 import { FaSave, FaCheckCircle, FaPen, FaTrash } from "react-icons/fa";
 import axios from "axios";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+import { qmodules, qformats } from "./EditorPlugins";
 
-const qmodules = {
-	toolbar: [
-		[{ header: [1, 2, 3, 4, 5, 6, false] }],
-		[{ font: [] }],
-		["bold", "italic", "underline", "strike"],
-		[{ list: "ordered" }, { list: "bullet" }],
-		[{ align: [] }],
-		[{ script: "sub" }, { script: "super" }],
-		[{ indent: "-4" }, { indent: "+4" }],
-		[{ direction: "rtl" }],
-		[{ color: [] }, { background: [] }],
-		["blockquote", "code-block"],
-
-		["link", "image", "video"],
-		["clean"],
-	],
-	clipboard: {
-		matchVisual: false,
-	},
-};
-
-const qformats = [
-	"header",
-	"font",
-	"bold",
-	"italic",
-	"underline",
-	"strike",
-	"blockquote",
-	"list",
-	"align",
-	"script",
-	"direction",
-	"color",
-	"background",
-	"code-block",
-	"bullet",
-	"indent",
-	"link",
-	"image",
-	"video",
-];
 
 const Post = () => {
 	const { authTokens } = useContext(AuthContext);
@@ -61,10 +21,14 @@ const Post = () => {
 	const [body, setBody] = useState("");
 	const [thumbnail_image, setThumbnail_image] = useState(null);
 	const [tag, setTag] = useState("");
+	const [postStatus, setPostStatus] = useState("")
+	const [postType, setPostType] = useState("New")
+	const [editPostId, setEditPostId] = useState(null);
+	const [currentDate, setCurrentDate] = useState(Date.now());
 
 	useEffect(() => {
 		Tags();
-		controlData();
+		controlData()
 	}, []);
 
 	const Tags = async () => {
@@ -80,38 +44,60 @@ const Post = () => {
 		}
 	};
 
-	const handleSubmit = async (e, dataValue) => {
+	const handleSubmit = async (e, isPublic) => {
 		e.preventDefault();
-		console.log("Does the post public:", dataValue);
-
 		const formData = new FormData();
 		formData.append("title", title);
 		formData.append("body", body);
-		formData.append("tag", tag); // Use the selectedTag state
-		formData.append("is_public", dataValue === "public" ? true : false);
+		formData.append("tag", tag);
+		formData.append("is_public", isPublic);
 		formData.append("thumbnail_image", thumbnail_image);
-
 		try {
-			const response = await axios.post(
-				"http://127.0.0.1:8000/api/new-post/",
-				formData,
-				{
-					headers: {
-						Authorization: `Bearer ${authTokens?.access}`,
-						"Content-Type": "multipart/form-data",
-					},
-				}
-			);
+			let response=null;
+			if(editPostId){
+				response = await axios.post(
+					`http://127.0.0.1:8000/api/update-post/${editPostId}/`,
+					formData,
+					{
+						headers: {
+							Authorization: `Bearer ${authTokens?.access}`,
+							"Content-Type": "multipart/form-data",
+						},
+					}
+				);
+			}
+			else{
+				response = await axios.post(
+					"http://127.0.0.1:8000/api/new-post/",
+					formData,
+					{
+						headers: {
+							Authorization: `Bearer ${authTokens?.access}`,
+							"Content-Type": "multipart/form-data",
+						},
+					}
+				);
+			}
 
-			if (response.status === 201) {
-				alert("Blog post created successfully!");
+			if (response?.status === 201) {
 				setTitle("");
 				setBody("");
 				setThumbnail_image(null);
 				setTag("");
+				setPostType("Now");
+				setCurrentDate(Date.now())
+				if(editPostId) setPostStatus("update")
+				else setPostStatus("success")
+				editPostId(null)
+				setTimeout(() => {
+					setPostStatus("");
+				}, 1000);
 			}
 		} catch (error) {
-			alert(`${error} Something went wrong!`);
+			setPostStatus("error");
+			setTimeout(() => {
+				setPostStatus("");
+			}, 2000);
 		}
 	};
 
@@ -130,14 +116,71 @@ const Post = () => {
 			setDraftPost(drPost);
 		}
 	};
-	const deleteHandle = () => {
-		alert(`This id Want to delete!`);
+	const deletePost = async(event, postId, isPublic) => {
+		event.preventDefault();
+		try {
+			const response = await axios.delete(
+			  `http://127.0.0.1:8000/api/delete-post/${postId}/`,
+			  {
+				headers: {
+				  Authorization: `Bearer ${authTokens?.access}`,
+				},
+			  }
+			);
+			if (response.status === 204) {
+				if(isPublic) setPublicPost(prevPosts => prevPosts.filter(post => post.id !== postId));
+				else setDraftPost(prevPosts => prevPosts.filter(post => post.id !== postId));
+				controlData();
+
+				setPostStatus("delete")
+				setTimeout(() => {
+					setPostStatus("");
+				}, 2000);
+			}
+		  } catch (error) {
+			setPostStatus("error")
+			setTimeout(() => {
+				setPostStatus("");
+			}, 2000);
+		  }
 	};
+	const fetchPostData = async (postId) => {
+		const response = await axios.get(`http://127.0.0.1:8000/api/detail-post/${postId}/`);
+		if (response.status === 200) {
+			console.log(response.data.post_details.tag)
+			const data=response.data.post_details;
+			setTitle(data.title);
+			setBody(data.body);
+			setTag(String(data.tag));
+			setThumbnail_image(data.thumbnail_image)
+			console.log(data.thumbnail_image)
+			setPostType("Update");
+			setCurrentDate(data.update_date)
+		}
+	};
+
+	const editPost = async (event, postId) => {
+		event.preventDefault();
+		setEditPostId(postId);
+    	await fetchPostData(postId);
+	};
+	const ShowMessage=()=>{
+		if(postStatus==="success") return <p className="text-center p-4 text-green-600">Created new post successfully!!</p>
+		if(postStatus==="update") return <p className="text-center p-4 text-green-600">Updated post successfully!!</p>
+		else if(postStatus ==="delete") return <p className="text-center p-4 text-red-600">Post deleted successfully!</p>
+		else if(postStatus==="error") return <p className="text-center p-4 text-red-600">Something went wrong!</p>
+	}
+	const geDateToday = (date)=>{
+		const nowDate = new Date(date);
+		return nowDate.toLocaleString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+	}
+	
 	return (
+	
 		<div className="py-10">
 			<form>
 				<div className="flex-none gap-4 w-full mx-auto p-8 h-full lg:w-[80%] lg:flex  bg-white rounded shadow-md">
-					<div className="flex-none w-full mb-8 pb-6 lg:p-6 lg:mb-4 lg:w-[80%] lg:flex-1  ">
+					<div className="flex-none w-full mb-8 pb-6 lg:p-6 lg:mb-4 lg:w-[60%] lg:flex-1">
 						<div className="w-full">
 							<div className="mb-2 block">
 								<Label
@@ -172,16 +215,6 @@ const Post = () => {
 								value={body}
 								onChange={setBody}
 							/>
-							{/* <EditorToolbar toolbarId={"t2"} />
-							<ReactQuill
-								className="w-full h-[318px] mb-12"
-								theme="snow"
-								value={body}
-								onChange={setBody}
-								placeholder={"Write something awesome..."}
-								modules={modules("t2")}
-								formats={formats}
-							/> */}
 						</div>
 					</div>
 
@@ -246,20 +279,20 @@ const Post = () => {
 									<span className="text-green-600 font-semibold mr-2">
 										Status:
 									</span>
-									New
+									{postType}
 								</p>
 								<p>
 									<span className="text-sky-600 font-semibold mr-2">
 										Last update:
 									</span>
-									August 12, 2023
+									{geDateToday(currentDate)}
 								</p>
 								<Button.Group outline className="mt-4">
 									<Button
 										gradientDuoTone="greenToBlue"
 										outline
 										onClick={(e) =>
-											handleSubmit(e, "public")
+											handleSubmit(e, true)
 										}
 									>
 										<FaCheckCircle className="mr-3 h-4 w-4" />
@@ -269,26 +302,27 @@ const Post = () => {
 										gradientDuoTone="purpleToBlue"
 										outline
 										onClick={(e) =>
-											handleSubmit(e, "draft")
+											handleSubmit(e, false)
 										}
 									>
 										<FaSave className="mr-3 h-4 w-4" />
 										<p>Draft</p>
 									</Button>
 								</Button.Group>
+								
 							</div>
 						</div>
 					</div>
 				</div>
 			</form>
+			{postStatus && ShowMessage()}
 			<div className="mt-8 w-full h-full mx-auto p-8 lg:w-[80%] bg-white rounded shadow-md">
 				<h3 className="font-extrabold text-sky-900 text-2xl">
 					Draft posts
 				</h3>
 				<hr className="h-1 w-[30%] my-1 bg-gray-300 border-0 rounded md:my-2 dark:bg-gray-700" />
 				<ul className="space-y-1 text-black-800 font-semibold list-inside dark:text-gray-400">
-					{draftPost ? (
-						draftPost.map((post) => (
+					{draftPost?.map((post) => (
 							<li key={post.id} className="flex items-center">
 								<svg
 									className="w-3.5 h-3.5 mr-2 text-gray-500 dark:text-gray-400 flex-shrink-0"
@@ -302,17 +336,16 @@ const Post = () => {
 								{post.title}
 								<span className="ml-2 bg-green-800 rounded text-white p-1">
 									<a href="/">
-										<FaPen />
+										<FaPen onClick={(event)=> editPost(event, post.id)}/>
 									</a>
 								</span>
 								<span className="ml-2 bg-red-800 rounded text-white p-1">
-									<FaTrash onClick={deleteHandle} />
+									<FaTrash onClick={(event) => deletePost(event, post.id, 0)} />
 								</span>
 							</li>
 						))
-					) : (
-						<p>No post is pending here...</p>
-					)}
+					}
+					{draftPost.length===0 && <p>No pending post to show</p>}
 				</ul>
 			</div>
 			<div className="mt-8 w-full h-full mx-auto p-8 lg:w-[80%] bg-white rounded shadow-md">
@@ -321,8 +354,7 @@ const Post = () => {
 				</h3>
 				<hr className="h-1 w-[40%] my-1 bg-gray-300 border-0 rounded md:my-2 dark:bg-gray-700" />
 				<ul className="space-y-1 text-black-800 font-semibold list-inside dark:text-gray-400">
-					{publicPost ? (
-						publicPost.map((post) => (
+					{publicPost?.map((post) => (
 							<li
 								key={post.id}
 								className="flex items-center text-violet-700"
@@ -339,19 +371,20 @@ const Post = () => {
 								{post.title}
 								<span className="ml-2 bg-green-800 rounded text-white p-1">
 									<a href="/">
-										<FaPen />
+										<FaPen onClick={(event)=> editPost(event, post.id)}/>
 									</a>
 								</span>
 								<span className="ml-2 bg-red-800 rounded text-white p-1">
 									<a href="/">
-										<FaTrash />
+										<FaTrash onClick={(event) => deletePost(event, post.id, 1)}/>
 									</a>
 								</span>
 							</li>
 						))
-					) : (
-						<p>No post is shared to public </p>
-					)}
+					}
+					{
+						publicPost.length===0 && <p>No public post to show</p>
+					}
 				</ul>
 			</div>
 		</div>

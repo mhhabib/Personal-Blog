@@ -12,28 +12,27 @@ import PrivateRoute from "./utils/PrivateRoute";
 import { AuthProvider } from "./context/AuthContext";
 
 function App() {
-	return (
-		<Fragment>
-			<BrowserRouter>
-				<AuthProvider>
-					<HeaderNav />
-					<div className="bg-gray-100 w-full h-full">
-						<Routes>
-							<Route element={<PrivateRoute />} path="/post">
-								<Route element={<Post />} path="/post" />
-							</Route>
-							<Route element={<Home />} path="/" />
-							<Route element={<Post />} path="/post" />
-							<Route element={<Details />} path="/post/:id" />
-							<Route element={<Register />} path="/register" />
-							<Route element={<Login />} path="/login" />
-						</Routes>
-					</div>
-					<Footerbar />
-				</AuthProvider>
-			</BrowserRouter>
-		</Fragment>
-	);
+  return (
+    <Fragment>
+      <BrowserRouter>
+        <AuthProvider>
+          <HeaderNav />
+          <div className="bg-gray-100 w-full h-full">
+            <Routes>
+              <Route element={<PrivateRoute />}>
+                <Route index element={<Home />} />
+                <Route path="/post" element={<Post />} />
+                <Route path="/post/:id" element={<Details />} />
+              </Route>
+              <Route path="/register" element={<Register />} />
+              <Route path="/login" element={<Login />} />
+            </Routes>
+          </div>
+          <Footerbar />
+        </AuthProvider>
+      </BrowserRouter>
+    </Fragment>
+  );
 }
 
 export default App;

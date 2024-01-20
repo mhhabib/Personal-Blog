@@ -15,11 +15,13 @@ export const AuthProvider = ({ children }) => {
 			? jwt_decode(localStorage.getItem("authTokens"))
 			: null
 	);
-
+	const [loginMessage, setLoginMessage] = useState("");
 	const usernameRef = useRef(username);
+	const loginMessageRef=useRef(loginMessage);
 	useEffect(() => {
 		usernameRef.current = username;
-	}, [username]);
+		loginMessageRef.current=loginMessage;
+	}, [username, loginMessage]);
 
 	const [loading, setLoading] = useState(true);
 	const navigate = useNavigate();
@@ -44,7 +46,7 @@ export const AuthProvider = ({ children }) => {
 			localStorage.setItem("authTokens", JSON.stringify(data));
 			navigate("/");
 		} else {
-			alert("Incorrect username or password!");
+			alert("user or password inccorrect!")
 		}
 	};
 

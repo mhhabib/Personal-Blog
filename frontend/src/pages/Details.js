@@ -1,13 +1,39 @@
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import LoadingPage from "./LoadingPage";
+import parse from 'html-react-parser';
+import DOMPurify from 'dompurify';
+
 
 const Details = () => {
 	const [postloading, setPostloading] = useState(true);
 	const [post, setPost] = useState({});
+	const [tagPost, setTagPost] = useState({});
 	const location = useLocation();
 	const navigate = useNavigate();
 	const postId = location.pathname.split("/")[2];
+
+	const getText = (htmlString) => {
+        const cleanHtmlString = DOMPurify.sanitize(htmlString,
+          { USE_PROFILES: { html: true } });
+        const html = parse(cleanHtmlString);
+        return html;
+	}
+	
+	const getTagsPost = async(tagId, postId)=>{
+		const response = await fetch("http://127.0.0.1:8000/api/posts/", {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+			},
+		});
+		const data = await response.json();
+		if (response.status === 200) {
+			const t_post = data?.filter((item) => item.tag === tagId && item.id!=postId);
+			setTagPost(t_post);
+		}
+	}
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
@@ -22,6 +48,7 @@ const Details = () => {
 				);
 				const data = await response.json();
 				setPost(data.post_details);
+				getTagsPost(data.post_details.tag, postId);
 				setPostloading(false);
 			} catch (err) {
 				console.log(err);
@@ -29,16 +56,12 @@ const Details = () => {
 		};
 		fetchData();
 	}, [postId, postloading]);
+	const wordsCount = (data) => {
+		return data.split(/\s+/).length;
+	};
+
 	if (postloading) {
-		return (
-			<>
-				<main className="pt-4 pb-16 lg:pt-4 lg:pb-24 dark:bg-gray-900">
-					<div className="flex justify-between px-4 mx-auto ">
-						Loading.....................
-					</div>
-				</main>
-			</>
-		);
+		return <LoadingPage/>
 	}
 	return (
 		<>
@@ -58,112 +81,118 @@ const Details = () => {
 								</div>
 							</div>
 						</header>
-						<div dangerouslySetInnerHTML={{ __html: post.body }} />
-						{/* <p>{ReactQuill.getHTML(post.body)}</p> */}
+						{getText(post.body)}
+						
 					</article>
 				</div>
 			</main>
 
-			<aside
-				aria-label="Related articles"
-				className="py-10 bg-gray-50 dark:bg-gray-800"
-			>
-				<div className="px-4 mx-auto max-w-screen-xl">
-					<h2 className="mb-8 text-2xl font-bold text-gray-900 dark:text-white">
-						Related articles
-					</h2>
-					<div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
-						<article className="max-w-xs">
-							<a href="/">
-								<img
-									src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/article/blog-1.png"
-									className="mb-5 rounded-lg"
-									alt="thumbnail"
-								/>
-							</a>
-							<h2 className="mb-2 text-xl font-bold leading-tight text-gray-900 dark:text-white">
-								<a href="/">Our first office</a>
-							</h2>
-							<p className="mb-4 font-light text-gray-500 dark:text-gray-400">
-								Over the past year, Volosoft has undergone many
-								changes! After months of preparation.
-							</p>
-							<a
-								href="/"
-								className="inline-flex items-center font-medium underline underline-offset-4 text-primary-600 dark:text-primary-500 hover:no-underline"
-							>
-								Read in 2 minutes
-							</a>
-						</article>
-						<article className="max-w-xs">
-							<a href="/">
-								<img
-									src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/article/blog-2.png"
-									className="mb-5 rounded-lg"
-									alt="thumbnail"
-								/>
-							</a>
-							<h2 className="mb-2 text-xl font-bold leading-tight text-gray-900 dark:text-white">
-								<a href="/">Enterprise design tips</a>
-							</h2>
-							<p className="mb-4 font-light text-gray-500 dark:text-gray-400">
-								Over the past year, Volosoft has undergone many
-								changes! After months of preparation.
-							</p>
-							<a
-								href="/"
-								className="inline-flex items-center font-medium underline underline-offset-4 text-primary-600 dark:text-primary-500 hover:no-underline"
-							>
-								Read in 12 minutes
-							</a>
-						</article>
-						<article className="max-w-xs">
-							<a href="/">
-								<img
-									src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/article/blog-3.png"
-									className="mb-5 rounded-lg"
-									alt="thumbnail"
-								/>
-							</a>
-							<h2 className="mb-2 text-xl font-bold leading-tight text-gray-900 dark:text-white">
-								<a href="/">We partnered with Google</a>
-							</h2>
-							<p className="mb-4 font-light text-gray-500 dark:text-gray-400">
-								Over the past year, Volosoft has undergone many
-								changes! After months of preparation.
-							</p>
-							<a
-								href="/"
-								className="inline-flex items-center font-medium underline underline-offset-4 text-primary-600 dark:text-primary-500 hover:no-underline"
-							>
-								Read in 8 minutes
-							</a>
-						</article>
-						<article className="max-w-xs">
-							<a href="/">
-								<img
-									src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/article/blog-4.png"
-									className="mb-5 rounded-lg"
-									alt="thumbnail"
-								/>
-							</a>
-							<h2 className="mb-2 text-xl font-bold leading-tight text-gray-900 dark:text-white">
-								<a href="/">Our first project with React</a>
-							</h2>
-							<p className="mb-4 font-light text-gray-500 dark:text-gray-400">
-								Over the past year, Volosoft has undergone many
-								changes! After months of preparation.
-							</p>
-							<a
-								href="/"
-								className="inline-flex items-center font-medium underline underline-offset-4 text-primary-600 dark:text-primary-500 hover:no-underline"
-							>
-								Read in 4 minutes
-							</a>
-						</article>
+			{tagPost.length>0 &&
+				<aside
+					aria-label="Related articles"
+					className="py-10 bg-gray-50 dark:bg-gray-800"
+				>
+					<div className="px-4 mx-auto max-w-screen-xl">
+						<h2 className="mb-8 text-2xl font-bold text-gray-900 dark:text-white">
+							Related articles
+						</h2>
+						<div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
+							{tagPost?.map((tPost)=>(
+								<article className="max-w-xs" key={tPost.id}>
+									<a href="/">
+										<img
+											src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/article/blog-1.png"
+											className="mb-5 rounded-lg"
+											alt="thumbnail"
+										/>
+									</a>
+									<h2 className="mb-2 text-xl font-bold leading-tight text-gray-900 dark:text-white">
+										<a href="/">{getText(tPost.title).length > 20
+										? parse(tPost.title).substring(0, 20) +
+										" ..."
+										: getText(tPost.title)}</a>
+									</h2>
+									<p className="mb-4 font-light text-gray-500 dark:text-gray-400">
+										{getText(tPost.body).length>50? getText(tPost.body).substring(0, 50): getText(tPost.body)}
+									</p>
+									<a
+										href="/"
+										className="inline-flex items-center font-medium underline underline-offset-4 text-primary-600 dark:text-primary-500 hover:no-underline"
+									>
+										Read in {Math.ceil(wordsCount(tPost.body) / 150)} minutes
+									</a>
+								</article>
+							))}
+							{/* <article className="max-w-xs">
+								<a href="/">
+									<img
+										src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/article/blog-2.png"
+										className="mb-5 rounded-lg"
+										alt="thumbnail"
+									/>
+								</a>
+								<h2 className="mb-2 text-xl font-bold leading-tight text-gray-900 dark:text-white">
+									<a href="/">Enterprise design tips</a>
+								</h2>
+								<p className="mb-4 font-light text-gray-500 dark:text-gray-400">
+									Over the past year, Volosoft has undergone many
+									changes! After months of preparation.
+								</p>
+								<a
+									href="/"
+									className="inline-flex items-center font-medium underline underline-offset-4 text-primary-600 dark:text-primary-500 hover:no-underline"
+								>
+									Read in 12 minutes
+								</a>
+							</article>
+							<article className="max-w-xs">
+								<a href="/">
+									<img
+										src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/article/blog-3.png"
+										className="mb-5 rounded-lg"
+										alt="thumbnail"
+									/>
+								</a>
+								<h2 className="mb-2 text-xl font-bold leading-tight text-gray-900 dark:text-white">
+									<a href="/">We partnered with Google</a>
+								</h2>
+								<p className="mb-4 font-light text-gray-500 dark:text-gray-400">
+									Over the past year, Volosoft has undergone many
+									changes! After months of preparation.
+								</p>
+								<a
+									href="/"
+									className="inline-flex items-center font-medium underline underline-offset-4 text-primary-600 dark:text-primary-500 hover:no-underline"
+								>
+									Read in 8 minutes
+								</a>
+							</article>
+							<article className="max-w-xs">
+								<a href="/">
+									<img
+										src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/article/blog-4.png"
+										className="mb-5 rounded-lg"
+										alt="thumbnail"
+									/>
+								</a>
+								<h2 className="mb-2 text-xl font-bold leading-tight text-gray-900 dark:text-white">
+									<a href="/">Our first project with React</a>
+								</h2>
+								<p className="mb-4 font-light text-gray-500 dark:text-gray-400">
+									Over the past year, Volosoft has undergone many
+									changes! After months of preparation.
+								</p>
+								<a
+									href="/"
+									className="inline-flex items-center font-medium underline underline-offset-4 text-primary-600 dark:text-primary-500 hover:no-underline"
+								>
+									Read in 4 minutes
+								</a>
+							</article> */}
+						</div>
 					</div>
-				</div>
-			</aside>
+				</aside>
+			}
 		</>
 	);
 };
