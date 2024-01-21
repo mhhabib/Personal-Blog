@@ -29,7 +29,6 @@ For the frontend service, I used ReactJs. What I used in frontend service
 - Moment ( time calculation)
 - jwt-Decode
 - ReactQuill (Richtext Editor)
-- Axios for fetching all the API's
 
 ### Yet to done
 
