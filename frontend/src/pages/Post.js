@@ -261,7 +261,7 @@ const Post = () => {
 									id="formFileSm"
 									type="file"
 									accept="image/*"
-									onChange={(e) =>
+									onChange={(e) => 
 										setThumbnail_image(e.target.files[0])
 									}
 								/>

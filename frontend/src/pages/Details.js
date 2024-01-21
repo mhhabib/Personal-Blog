@@ -1,6 +1,6 @@
 import moment from "moment";
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import LoadingPage from "./LoadingPage";
 import parse from 'html-react-parser';
 import DOMPurify from 'dompurify';
@@ -11,7 +11,6 @@ const Details = () => {
 	const [post, setPost] = useState({});
 	const [tagPost, setTagPost] = useState({});
 	const location = useLocation();
-	const navigate = useNavigate();
 	const postId = location.pathname.split("/")[2];
 
 	const getText = (htmlString) => {
@@ -22,7 +21,7 @@ const Details = () => {
 	}
 	
 	const getTagsPost = async(tagId, postId)=>{
-		const response = await fetch("http://127.0.0.1:8000/api/posts/", {
+		const response = await fetch(`http://127.0.0.1:8000/api/posts/by_tag/${tagId}/`, {
 			method: "GET",
 			headers: {
 				"Content-Type": "application/json",
@@ -30,7 +29,7 @@ const Details = () => {
 		});
 		const data = await response.json();
 		if (response.status === 200) {
-			const t_post = data?.filter((item) => item.tag === tagId && item.id!=postId);
+			const t_post = data?.filter((item) => item.id!=postId);
 			setTagPost(t_post);
 		}
 	}
