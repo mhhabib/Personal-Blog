@@ -26,7 +26,7 @@ urlpatterns = [
     path("update-post/<int:pk>/", UpdatePost.as_view(), name="update-post"),
     path("delete-post/<int:pk>/", DeletePost.as_view(), name="delete-post"),
     path("detail-post/<int:pk>/", PostDetailView.as_view(), name="detail-post"),
-    path("posts/by_tag/<str:tag_id>/", PostsByTagView.as_view(), name="posts-by-tag"),
+    path("posts/by_tag/<int:tag_id>/", PostsByTagView.as_view(), name="posts-by-tag"),
     path("token/", MyTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 ]
