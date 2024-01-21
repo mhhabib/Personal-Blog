@@ -17,11 +17,9 @@ export const AuthProvider = ({ children }) => {
 	);
 	const [loginMessage, setLoginMessage] = useState("");
 	const usernameRef = useRef(username);
-	const loginMessageRef=useRef(loginMessage);
 	useEffect(() => {
 		usernameRef.current = username;
-		loginMessageRef.current=loginMessage;
-	}, [username, loginMessage]);
+	}, [username]);
 
 	const [loading, setLoading] = useState(true);
 	const navigate = useNavigate();
@@ -46,7 +44,10 @@ export const AuthProvider = ({ children }) => {
 			localStorage.setItem("authTokens", JSON.stringify(data));
 			navigate("/");
 		} else {
-			alert("user or password inccorrect!")
+			setLoginMessage("Incorrect username or password. Please try again!")
+			setTimeout(() => {
+				setLoginMessage("");
+			}, 3000);
 		}
 	};
 
@@ -89,6 +90,7 @@ export const AuthProvider = ({ children }) => {
 		authTokens: authTokens,
 		loginUser: loginUser,
 		logoutUser: logoutUser,
+		loginMessage: loginMessage
 	};
 
 	useEffect(() => {

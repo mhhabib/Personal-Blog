@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
 
 const Login = () => {
-	const { username, loginUser } = useContext(AuthContext);
+	const { username, loginUser, loginMessage } = useContext(AuthContext);
 	const usernameRef = useRef(username);
 	
 
@@ -29,14 +29,16 @@ const Login = () => {
 					className="mb-0 mt-6 space-y-4 rounded-lg p-4 shadow-lg sm:p-6 lg:p-8"
 					onSubmit={loginUser}
 				>
-					{/* {loginMessages &&
-						<p className="text-center text-lg font-medium">
-							{loginMessages}
+					{loginMessage?
+						<p className="text-center font-medium text-red-600 ">
+							{loginMessage}
 						</p>
-					} */}
-					<p className="text-center text-lg font-medium">
+						:
+						<p className="text-center text-lg font-medium">
 							Sign in to your account
 						</p>
+					}
+						
 					<div>
 						<label htmlFor="text" className="sr-only">
 							User name
