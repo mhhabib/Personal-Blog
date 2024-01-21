@@ -34,6 +34,5 @@ For the frontend service, I used ReactJs. What I used in frontend service
 
 - [ ] Introduce Memcached for caching the blog data
 - [ ] Introduce pagination
-- [ ] 404 not found page
 
 
