@@ -1,6 +1,6 @@
 import moment from "moment";
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import LoadingPage from "./LoadingPage";
 import parse from 'html-react-parser';
 import DOMPurify from 'dompurify';
@@ -10,6 +10,7 @@ const Details = () => {
 	const [postloading, setPostloading] = useState(true);
 	const [post, setPost] = useState({});
 	const [tagPost, setTagPost] = useState({});
+	const navigate = useNavigate();
 	const location = useLocation();
 	const postId = location.pathname.split("/")[2];
 
@@ -46,9 +47,13 @@ const Details = () => {
 					}
 				);
 				const data = await response.json();
-				setPost(data.post_details);
-				getTagsPost(data.post_details.tag, postId);
-				setPostloading(false);
+				console.log("Wrong response: ",response.status)
+				if(response.status===404) navigate("*")
+				if(response.status===200){
+					setPost(data.post_details);
+					getTagsPost(data.post_details.tag, postId);
+					setPostloading(false);
+				}
 			} catch (err) {
 				console.log(err);
 			}

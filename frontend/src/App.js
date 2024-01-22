@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Post from "./pages/Post";
 import Details from "./pages/Details";
+import NotFound404 from "./pages/404_Not_Found";
 import HeaderNav from "./components/Navbar";
 import Footerbar from "./components/Footer";
 import PrivateRoute from "./utils/PrivateRoute";
@@ -26,6 +27,7 @@ function App() {
               </Route>
               <Route path="/register" element={<Register />} />
               <Route path="/login" element={<Login />} />
+              <Route path="*" element={<NotFound404/>}/>
             </Routes>
           </div>
           <Footerbar />
