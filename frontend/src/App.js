@@ -1,6 +1,6 @@
 import "./App.css";
+import React from "react";
 import { Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Post from "./pages/Post";
@@ -11,6 +11,8 @@ import Footerbar from "./components/Footer";
 import PrivateRoute from "./utils/PrivateRoute";
 import { AuthProvider } from "./context/AuthContext";
 
+const LazyHome = React.lazy(()=>import("./pages/Home"))
+
 function App() {
   return (
     <>
@@ -18,7 +20,11 @@ function App() {
         <HeaderNav />
         <div className="bg-gray-100 w-full h-full">
           <Routes>
-            <Route path="/" element={<Home />} />  
+            <Route path="/" element={
+              <React.Suspense fallback={<></>}>
+                <LazyHome/>
+              </React.Suspense>
+            } />  
             <Route path="/post" element={
               <PrivateRoute>
                 <Post />
