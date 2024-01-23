@@ -1,7 +1,7 @@
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import LoadingPage from "./LoadingPage";
+import {LoadingPage} from "./LoadingPage";
 import parse from 'html-react-parser';
 import DOMPurify from 'dompurify';
 

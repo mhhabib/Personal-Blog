@@ -119,3 +119,10 @@ class PostsByTagView(generics.ListAPIView):
     def get_queryset(self):
         tag_id = self.kwargs["tag_id"]
         return Post.objects.filter(tag_id=tag_id)
+    
+class PostsByVisitorCountView(generics.ListAPIView):
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        return Post.objects.order_by('-visitor_count')[:5]

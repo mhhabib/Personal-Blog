@@ -1,51 +1,71 @@
 	import React, { useEffect, useState } from "react";
 	import { formatDistanceToNow } from "date-fns";
-	import LoadingPage from "./LoadingPage";
+	import {LoadingPage, NoPost} from "./LoadingPage";
 
 	const Home = () => {
 		const [allposts, setAllposts] = useState([]);
 		const [alltags, setAllTags] = useState([]);
+		const [allpostbyview, setAllpostbyview] = useState([]);
 		const [postloading, setPostloading] = useState(true);
 
+		const fetchPost = async()=>{
+			try{
+				const response = await fetch("http://127.0.0.1:8000/api/posts/", {
+					method: "GET",
+					headers: {
+						"Content-Type": "multipart/form-data",
+					},
+				});
+				let data = await response.json();
+				if (response.status === 200) {
+					data = data?.filter((item) => item.is_public === true);
+					setAllposts(data);
+					setPostloading(false);
+				}
+			}
+			catch(error){
+				console.log("Post: ",error);
+			}
+		}
+		const fetchTags = async()=>{
+			try{
+				const response = await fetch("http://127.0.0.1:8000/api/tags/", {
+					method: "GET",
+					headers: {
+						"Content-Type": "multipart/form-data",
+					},
+				});
+				let data = await response.json();
+				if (response.status === 200) {
+					setAllTags(data);
+				}
+			}
+			catch(error){
+				console.log("Tag fetching error: ",error);
+			}
+		}
+		const fetchPostByView = async()=>{
+			try{
+				const response = await fetch("http://127.0.0.1:8000/api/posts/by_view/", {
+					method: "GET",
+					headers: {
+						"Content-Type": "multipart/form-data",
+					},
+				});
+				let data = await response.json();
+				if (response.status === 200) {
+					setAllpostbyview(data);
+					console.log(data)
+				}
+			}
+			catch(error){
+				console.log("Post by view fetching error: ",error);
+			}
+		}
 		useEffect(() => {
-			const fetchPost = async()=>{
-				try{
-					const response = await fetch("http://127.0.0.1:8000/api/posts/", {
-						method: "GET",
-						headers: {
-							"Content-Type": "multipart/form-data",
-						},
-					});
-					let data = await response.json();
-					if (response.status === 200) {
-						data = data?.filter((item) => item.is_public === true);
-						setAllposts(data);
-						setPostloading(false);
-					}
-				}
-				catch(error){
-					console.log("Post: ",error);
-				}
-			}
-			const fetchTags = async()=>{
-				try{
-					const response = await fetch("http://127.0.0.1:8000/api/tags/", {
-						method: "GET",
-						headers: {
-							"Content-Type": "multipart/form-data",
-						},
-					});
-					let data = await response.json();
-					if (response.status === 200) {
-						setAllTags(data);
-					}
-				}
-				catch(error){
-					console.log("Tag fetching error: ",error);
-				}
-			}
 			fetchPost();
 			fetchTags();
+			fetchPostByView()
 		},[]);
 
 		const getText = (html) => {
@@ -66,7 +86,7 @@
 		}
 		return (
 			<>
-				{allposts.length===0 && <h1>No post to show</h1>}
+				{allposts.length===0 && <NoPost/>}
 				{allposts?.map((post) => (
 					<div
 						key={post.id}
@@ -132,6 +152,21 @@
 						</div>
 					</div>
 				))}
+				<div className="flex items-center justify-between pt-6 mx-auto w-full md:w-full lg:w-[80%] dark:bg-gray-800 dark:text-gray-50">
+					<div className="bg-white rounded container grid mx-auto dark:bg-gray-900 p-4">
+						<h2 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">Most viewed 5 posts</h2>
+						<ul className="space-y-1 text-gray-500 list-inside dark:text-gray-400">
+							{allpostbyview?.map((post)=>(
+								<li key={post.id} className="flex items-center">
+									<svg className="w-3.5 h-3.5 me-2 text-green-500 dark:text-green-400 flex-shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+										<path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
+									</svg>
+									<a href={`post/${post.id}`}>{post.title}</a>
+								</li>
+							))}
+						</ul>
+					</div>
+				</div>
 			</>
 		);
 	};

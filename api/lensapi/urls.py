@@ -13,6 +13,7 @@ from .views import (
     DeletePost,
     PostDetailView,
     PostsByTagView,
+    PostsByVisitorCountView
 )
 from rest_framework_simplejwt.views import TokenRefreshView
 
@@ -27,6 +28,7 @@ urlpatterns = [
     path("delete-post/<int:pk>/", DeletePost.as_view(), name="delete-post"),
     path("detail-post/<int:pk>/", PostDetailView.as_view(), name="detail-post"),
     path("posts/by_tag/<int:tag_id>/", PostsByTagView.as_view(), name="posts-by-tag"),
+    path("posts/by_view/", PostsByVisitorCountView.as_view(), name="posts-by-view"),
     path("token/", MyTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 ]

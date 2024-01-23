@@ -1,4 +1,4 @@
-const LoadingPage = () => {
+export const LoadingPage = () => {
     return (
         <div className="flex items-center justify-center h-screen">
             <div className="relative">
@@ -9,5 +9,14 @@ const LoadingPage = () => {
         </div>
         )
     };
-
-    export default LoadingPage;
+export const NoPost = ()=>{
+    return (
+        <div className="flex items-center justify-center h-screen">
+            <div className="relative">
+                <div className="h-24 w-24 rounded-full border-t-8 border-b-8 border-gray-200">
+                    No post to show
+                </div>
+            </div>
+        </div>
+        )
+    };
