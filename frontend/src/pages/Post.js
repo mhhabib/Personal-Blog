@@ -147,13 +147,11 @@ const Post = () => {
 	const fetchPostData = async (postId) => {
 		const response = await axios.get(`http://127.0.0.1:8000/api/detail-post/${postId}/`);
 		if (response.status === 200) {
-			console.log(response.data.post_details.tag)
 			const data=response.data.post_details;
 			setTitle(data.title);
 			setBody(data.body);
 			setTag(String(data.tag));
 			setThumbnail_image(data.thumbnail_image)
-			console.log(data.thumbnail_image)
 			setPostType("Update");
 			setCurrentDate(data.update_date)
 		}

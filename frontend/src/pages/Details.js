@@ -30,7 +30,7 @@ const Details = () => {
 		});
 		const data = await response.json();
 		if (response.status === 200) {
-			const t_post = data?.filter((item) => item.id!=postId);
+			const t_post = data?.filter((item) => item.id!==postId);
 			setTagPost(t_post);
 		}
 	}
@@ -47,7 +47,6 @@ const Details = () => {
 					}
 				);
 				const data = await response.json();
-				console.log("Wrong response: ",response.status)
 				if(response.status===404) navigate("*")
 				if(response.status===200){
 					setPost(data.post_details);

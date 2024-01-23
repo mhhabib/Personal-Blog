@@ -1,5 +1,4 @@
-	import React, { useContext, useEffect, useState } from "react";
-	import AuthContext from "../context/AuthContext";
+	import React, { useEffect, useState } from "react";
 	import { formatDistanceToNow } from "date-fns";
 	import LoadingPage from "./LoadingPage";
 
@@ -7,7 +6,6 @@
 		const [allposts, setAllposts] = useState([]);
 		const [alltags, setAllTags] = useState([]);
 		const [postloading, setPostloading] = useState(true);
-		const { logoutUser } = useContext(AuthContext);
 
 		useEffect(() => {
 			const fetchPost = async()=>{
@@ -23,8 +21,6 @@
 						data = data?.filter((item) => item.is_public === true);
 						setAllposts(data);
 						setPostloading(false);
-					} else if (response.statusText === "Unauthorized") {
-						logoutUser();
 					}
 				}
 				catch(error){

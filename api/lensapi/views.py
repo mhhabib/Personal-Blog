@@ -104,19 +104,12 @@ class PostDetailView(generics.RetrieveAPIView):
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
-
-        # Generate a shorter encrypted ID for the URL
-        short_encrypted_id = generate_short_encrypted_key(str(instance.id))
-
-        return Response(
-            {
-                "short_encrypted_id": short_encrypted_id,
-                "post_details": serializer.data,
-            }
-        )
+    def get(self, request, pk):
+        post = Post.objects.get(pk=pk)
+        post.visitor_count+=1
+        post.save()
+        serializer=PostSerializer(post)
+        return Response({"post_details": serializer.data})
 
 
 class PostsByTagView(generics.ListAPIView):

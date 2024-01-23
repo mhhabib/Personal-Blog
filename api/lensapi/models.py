@@ -17,6 +17,7 @@ class Post(models.Model):
     update_date = models.DateTimeField(auto_now=True)
     tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
     is_public = models.BooleanField(default=True)
+    visitor_count=models.IntegerField(default=0)
 
     def __str__(self):
         return self.title

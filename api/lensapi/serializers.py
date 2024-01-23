@@ -7,10 +7,6 @@ class TagSerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 class PostSerializer(serializers.ModelSerializer):
-    # tag = TagSerializer()
-    # class Meta:
-    #     model = Post
-    #     fields = ['id', 'user', 'title', 'body', 'create_date', 'update_date', 'tag', 'is_public', 'thumbnail_image']
     class Meta:
         model = Post
         fields = '__all__'
