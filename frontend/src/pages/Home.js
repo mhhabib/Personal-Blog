@@ -20,6 +20,7 @@
 				if (response.status === 200) {
 					data = data?.filter((item) => item.is_public === true);
 					setAllposts(data);
+					console.log(data)
 					setPostloading(false);
 				}
 			}
@@ -109,7 +110,7 @@
 									</span>
 								</div>
 								<h1 className="text-xl font-semibold">
-									<a href={`post/${post.id}`}>{post.title}</a>
+									<a href={`post/${post.slug}`}>{post.title}</a>
 								</h1>
 								<p className="flex-1 pt-2">
 									{getText(post.body).length > 250
@@ -119,7 +120,7 @@
 								</p>
 								<a
 									rel="noopener noreferrer"
-									href={`/post/${post.id}`}
+									href={`/post/${post.slug}`}
 									className="inline-flex items-center pt-2 pb-2 space-x-2 text-emerald-600"
 								>
 									<span>Read more</span>

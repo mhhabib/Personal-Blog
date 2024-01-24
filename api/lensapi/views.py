@@ -4,6 +4,7 @@ from cryptography.fernet import Fernet
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
 from .serializers import TagSerializer, PostSerializer
+from rest_framework import status
 import hashlib
 
 # Token authorizations
@@ -104,12 +105,15 @@ class PostDetailView(generics.RetrieveAPIView):
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-    def get(self, request, pk):
-        post = Post.objects.get(pk=pk)
-        post.visitor_count+=1
-        post.save()
-        serializer=PostSerializer(post)
-        return Response({"post_details": serializer.data})
+    def get(self, request, slug):
+        try:
+            post = Post.objects.get(slug=slug)
+            post.visitor_count += 1
+            post.save()
+            serializer = PostSerializer(post)
+            return Response({"post_details": serializer.data})
+        except Post.DoesNotExist:
+            return Response({"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
 class PostsByTagView(generics.ListAPIView):
